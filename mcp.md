@@ -2058,6 +2058,30 @@ $result->isError; // Whether the tool reported an error...
 $result->structuredContent;  // Structured content, if any...
 ```
 
+To try a remote tool call without a token, use the public [Chain.Love MCP gateway](https://github.com/Chain-Love/chain.love-mcp). Its read-only `search` tool can return Ethereum block explorer records. For a one-off command, disconnect the client when you finish:
+
+```php
+use Laravel\Mcp\Client;
+
+$client = Client::web('https://app.chain.love/mcp')->withTimeout(10);
+
+try {
+    $result = $client->callTool('search', [
+        'chain' => 'ethereum',
+        'category' => 'explorers',
+        'limit' => 3,
+    ]);
+
+    if ($result->isError) {
+        throw new RuntimeException('The infrastructure search failed.');
+    }
+
+    $response = $result->structuredContent ?? $result->text();
+} finally {
+    $client->disconnect();
+}
+```
+
 Alternatively, you may call a tool directly from a listed tool instance:
 
 ```php
